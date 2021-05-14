@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include "JString.h"
 
 namespace fairy {
     /**
@@ -32,8 +33,12 @@ namespace fairy {
         PARSE_NUMBER_OVERFLOW,
     };
 
+
     struct FieldValue {
-        double n;
+        union {
+            JString str;    // string
+            double n;       // number
+        } data;
         JsonFieldType type;
 
         JsonFieldType getType() const;

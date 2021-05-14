@@ -3,4 +3,4 @@ project(fairyjson)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(fairyjson fairy_json.h fairy_json.cpp test.cpp utils.h utils.cpp)
+add_executable(fairyjson fairy_json.h fairy_json.cpp test.cpp utils.h utils.cpp JString.h)

@@ -102,8 +102,8 @@ namespace fairy {
             for (p++; isDigit(*p); p++);
         }
         errno = 0;
-        v->n = std::strtod(c->json, nullptr);
-        if (errno == ERANGE && (v->n == HUGE_VAL || v->n == -HUGE_VAL))
+        v->data.n = std::strtod(c->json, nullptr);
+        if (errno == ERANGE && (v->getNumber() == HUGE_VAL || v->getNumber() == -HUGE_VAL))
             return JsonParseStatus::PARSE_NUMBER_OVERFLOW;
         v->type = JsonFieldType::J_NUMBER;
         c->json = p;
@@ -154,6 +154,6 @@ namespace fairy {
     double FieldValue::getNumber() const
     {
         assert(this->type == JsonFieldType::J_NUMBER);
-        return this->n;
+        return this->data.n;
     }
 }
