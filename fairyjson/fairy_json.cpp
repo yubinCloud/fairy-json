@@ -145,15 +145,4 @@ namespace fairy {
         }
         return retStatus;
     }
-
-    JsonFieldType FieldValue::getType() const
-    {
-        return this->type;
-    }
-
-    double FieldValue::getNumber() const
-    {
-        assert(this->type == JsonFieldType::J_NUMBER);
-        return this->data.n;
-    }
 }

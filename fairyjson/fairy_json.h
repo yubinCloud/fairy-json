@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <cassert>
 #include "JString.h"
 
 namespace fairy {
@@ -38,11 +39,47 @@ namespace fairy {
         union {
             JString str;    // string
             double n;       // number
-        } data;
-        JsonFieldType type;
+        } data{};
+        JsonFieldType type = JsonFieldType::J_NULL;
 
-        JsonFieldType getType() const;
-        double getNumber() const;
+        JsonFieldType getType() const {
+            return this->type;
+        }
+
+        void setType(JsonFieldType t) {
+            this->type = t;
+        }
+
+        double getNumber() const {
+            assert(this->type == JsonFieldType::J_NUMBER);
+            return this->data.n;
+        }
+
+        void setNumber(double n) {
+            assert(this->type == JsonFieldType::J_NUMBER);
+            this->data.n = n;
+        }
+
+        JString* getJStr() {
+            assert(this->type == JsonFieldType::J_STRING);
+            return &this->data.str;
+        }
+
+        const JString* getJStr() const {
+            assert(this->type == JsonFieldType::J_STRING);
+            return &this->data.str;
+        }
+
+        void setJStr(char* s, size_t len) {
+            assert(this->type == JsonFieldType::J_STRING);
+            this->data.str.s = s;
+            this->data.str.len = len;
+        }
+
+        void setJStr(JString* pJStr) {
+            this->setJStr(pJStr->s, pJStr->len);
+        }
+
     };
 
 
