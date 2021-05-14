@@ -131,6 +131,26 @@ static void test_parse_string() {
 #endif
 }
 
+#define TEST_ERROR(error, json)\
+    do {\
+        FieldValue v = {         \
+            .type = JsonFieldType::J_NULL\
+        };\
+        EXPECT_EQ_INT(error, json_parse(&v, json));\
+        EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());\
+        v.freeSpace();\
+    } while(0)
+
+    
+static void test_parse_invalid_string_escape() {
+#if 1
+    TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_ESCAPE, "\"\\v\"");
+    TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_ESCAPE, "\"\\'\"");
+    TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_ESCAPE, "\"\\0\"");
+    TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_ESCAPE, "\"\\x12\"");
+#endif
+}    
+
 static void test_parse() {
     test_parse_null();
     test_parse_expect_value();
@@ -138,6 +158,7 @@ static void test_parse() {
     test_parse_root_not_singular();
     test_parse_number();
     test_parse_string();
+    test_parse_invalid_string_escape();
 }
 
 
