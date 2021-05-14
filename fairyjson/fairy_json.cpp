@@ -94,11 +94,22 @@ namespace fairy {
     }
 
     JsonParseStatus json_parse(FieldValue* v, const char* json) {
-        ParseContext c = { json };
-        assert(v != nullptr);
+        ParseContext c = {
+                .json = json
+        };
+        if (v == nullptr) {
+            return JsonParseStatus::PARSE_INVALID_VALUE;
+        }
         v->type = JsonFieldType::J_NULL;
         parseWhitespace(&c);
-        return parseValue(&c, v);
+        auto retStatus = parseValue(&c, v);
+        if (retStatus == JsonParseStatus::PARSE_OK) {
+            parseWhitespace(&c);
+            if (*c.json != '\0') {
+                retStatus = JsonParseStatus::PARSE_ROOT_NOT_SINGULAR;
+            }
+        }
+        return retStatus;
     }
 
     JsonFieldType FieldValue::getType() const

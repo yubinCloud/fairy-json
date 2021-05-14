@@ -62,7 +62,7 @@ static void test_parse_root_not_singular() {
     FieldValue v = {
             .type = JsonFieldType::J_FALSE
     };
-    EXPECT_EQ_INT(JsonParseStatus::PARSE_INVALID_VALUE, json_parse(&v, "null x"));
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_ROOT_NOT_SINGULAR, json_parse(&v, "null x"));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 }
 
