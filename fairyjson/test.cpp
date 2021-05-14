@@ -30,8 +30,47 @@ static void test_parse_null() {
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 }
 
+static void test_parse_expect_value() {
+    FieldValue v = {
+            .type = JsonFieldType::J_FALSE
+    };
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_EXPECT_VALUE, json_parse(&v, " "));
+    EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
+
+    FieldValue v2 = {
+            .type = JsonFieldType::J_FALSE
+    };
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_EXPECT_VALUE, json_parse(&v2, " "));
+    EXPECT_EQ_INT(JsonFieldType::J_NULL, v2.getType());
+}
+
+static void test_parse_invalid_value() {
+    FieldValue v = {
+            .type = JsonFieldType::J_FALSE
+    };
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_INVALID_VALUE, json_parse(&v, "nul"));
+    EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
+
+    FieldValue v2 = {
+            .type = JsonFieldType::J_FALSE
+    };
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_INVALID_VALUE, json_parse(&v2, "?"));
+    EXPECT_EQ_INT(JsonFieldType::J_NULL, v2.getType());
+}
+
+static void test_parse_root_not_singular() {
+    FieldValue v = {
+            .type = JsonFieldType::J_FALSE
+    };
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_INVALID_VALUE, json_parse(&v, "null x"));
+    EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
+}
+
 static void test_parse() {
     test_parse_null();
+    test_parse_expect_value();
+    test_parse_invalid_value();
+    test_parse_root_not_singular();
 }
 
 int main() {
