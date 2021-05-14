@@ -149,7 +149,12 @@ static void test_parse_invalid_string_escape() {
     TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_ESCAPE, "\"\\0\"");
     TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_ESCAPE, "\"\\x12\"");
 #endif
-}    
+}
+
+static void test_parse_invalid_string_char() {
+    TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_CHAR, "\"\x01\"");
+    TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_CHAR, "\"\x1F\"");
+}
 
 static void test_parse() {
     test_parse_null();
@@ -159,6 +164,7 @@ static void test_parse() {
     test_parse_number();
     test_parse_string();
     test_parse_invalid_string_escape();
+    test_parse_invalid_string_char();
 }
 
 
