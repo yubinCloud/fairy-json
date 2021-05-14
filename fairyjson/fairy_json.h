@@ -66,6 +66,15 @@ namespace fairy {
             this->data.n = n;
         }
 
+        bool getBoolean() const {
+            assert(this->type == JsonFieldType::J_TRUE || this->type == JsonFieldType::J_FALSE);
+           if (this->type == JsonFieldType::J_TRUE)
+                return true;
+           return false;
+        }
+
+
+
         JString* getJStr() {
             assert(this->type == JsonFieldType::J_STRING);
             return &this->data.str;
