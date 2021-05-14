@@ -145,6 +145,11 @@ namespace fairy {
                     popN(c->charStack, c->charStack.size() - head);
                     return JsonParseStatus::PARSE_MISS_QUOTATION_MARK;
                 default:
+                    //  %x22 是双引号，%x5C 是反斜线，都已经处理。所以不合法的字符是 %x00 至 %x1F。我们简单地在 default 里处理：
+                    if ((unsigned char)ch < 0x20) {
+                        popN(c->charStack, c->charStack.size() - head);
+                        return JsonParseStatus::PARSE_INVALID_STRING_CHAR;
+                    }
                     c->charStack.push(ch);
             }
         }
