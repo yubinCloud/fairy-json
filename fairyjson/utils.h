@@ -25,3 +25,10 @@ inline bool isDigit(char ch) {
 }
 
 char* fetchStrFromCharStack(std::stack<char>& cStack, size_t len);
+
+/**
+ * 对一个栈进行弹出 N 次的操作
+ * @param s STL中的栈
+ * @param n 弹出的次数
+ */
+void popN(std::stack<char>& s, size_t n);

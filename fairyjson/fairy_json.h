@@ -77,7 +77,6 @@ namespace fairy {
 
 
         JString* getJStr() {
-            assert(this->type == JsonFieldType::J_STRING);
             return &this->data.str;
         }
 

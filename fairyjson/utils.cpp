@@ -16,3 +16,10 @@ char* fetchStrFromCharStack(stack<char>& cStack, size_t len) {
     }
     return buf;
 }
+
+
+void popN(std::stack<char>& s, size_t n) {
+    for (size_t i = 0; i < n; ++i) {
+        s.pop();
+    }
+}

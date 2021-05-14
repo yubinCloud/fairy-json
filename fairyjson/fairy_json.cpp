@@ -126,10 +126,23 @@ namespace fairy {
                     c->json = p;
                     v->type = JsonFieldType::J_STRING;
                     return JsonParseStatus::PARSE_OK;
-                case '\0':
-                    while (c->charStack.size() != head) {
-                        c->charStack.pop();
+                case '\\':
+                    switch (*p++) {
+                        case '\"': c->charStack.push('\"'); break;
+                        case '\\': c->charStack.push('\\'); break;
+                        case '/':  c->charStack.push('/');  break;
+                        case 'b':  c->charStack.push('\b'); break;
+                        case 'f':  c->charStack.push('\f'); break;
+                        case 'n':  c->charStack.push('\n'); break;
+                        case 'r':  c->charStack.push('\r'); break;
+                        case 't':  c->charStack.push('\t'); break;
+                        default:
+                            popN(c->charStack, c->charStack.size() - head);
+                            return JsonParseStatus::PARSE_INVALID_STRING_ESCAPE;
                     }
+                    break;
+                case '\0':
+                    popN(c->charStack, c->charStack.size() - head);
                     return JsonParseStatus::PARSE_MISS_QUOTATION_MARK;
                 default:
                     c->charStack.push(ch);
