@@ -21,6 +21,7 @@ static int test_pass = 0;
     } while(0)
 
 #define EXPECT_EQ_INT(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%d")
+#define EXPECT_EQ_DOUBLE(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%.17g")
 
 static void test_parse_null() {
     FieldValue v = {
@@ -66,12 +67,46 @@ static void test_parse_root_not_singular() {
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 }
 
+#define TEST_NUMBER(expect, json)\
+    do {\
+        FieldValue v = {         \
+            .type = JsonFieldType::J_FALSE\
+        };\
+        EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, json));\
+        EXPECT_EQ_INT(JsonFieldType::J_NUMBER, v.getType());\
+        EXPECT_EQ_DOUBLE(expect, v.getNumber());\
+    } while(0)
+
+static void test_parse_number() {
+    TEST_NUMBER(0.0, "0");
+    TEST_NUMBER(0.0, "-0");
+    TEST_NUMBER(0.0, "-0.0");
+    TEST_NUMBER(1.0, "1");
+    TEST_NUMBER(-1.0, "-1");
+    TEST_NUMBER(1.5, "1.5");
+    TEST_NUMBER(-1.5, "-1.5");
+    TEST_NUMBER(3.1416, "3.1416");
+    TEST_NUMBER(1E10, "1E10");
+    TEST_NUMBER(1e10, "1e10");
+    TEST_NUMBER(1E+10, "1E+10");
+    TEST_NUMBER(1E-10, "1E-10");
+    TEST_NUMBER(-1E10, "-1E10");
+    TEST_NUMBER(-1e10, "-1e10");
+    TEST_NUMBER(-1E+10, "-1E+10");
+    TEST_NUMBER(-1E-10, "-1E-10");
+    TEST_NUMBER(1.234E+10, "1.234E+10");
+    TEST_NUMBER(1.234E-10, "1.234E-10");
+    TEST_NUMBER(0.0, "1e-10000"); /* must underflow */
+}
+
 static void test_parse() {
     test_parse_null();
     test_parse_expect_value();
     test_parse_invalid_value();
     test_parse_root_not_singular();
+    test_parse_number();
 }
+
 
 int main() {
     test_parse();

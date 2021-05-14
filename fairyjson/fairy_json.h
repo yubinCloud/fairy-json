@@ -32,9 +32,11 @@ namespace fairy {
     };
 
     struct FieldValue {
+        double n;
         JsonFieldType type;
 
         JsonFieldType getType() const;
+        double getNumber() const;
     };
 
 

@@ -76,6 +76,18 @@ namespace fairy {
         return JsonParseStatus::PARSE_OK;
     }
 
+    static JsonParseStatus parseNumber(ParseContext* c, FieldValue* v) {
+        char* end;  // 数字部分的结尾
+        // TODO: validate number
+        v->n = strtod(c->json, &end);
+        if (c->json == end) {
+            return JsonParseStatus::PARSE_INVALID_VALUE;
+        }
+        c->json = end;
+        v->type = JsonFieldType::J_NUMBER;
+        return JsonParseStatus::PARSE_OK;
+    }
+
     /**
      * 解析 json 值
      * @param c
@@ -89,7 +101,7 @@ namespace fairy {
             case 't':   return parseTrue(c, v);
             case 'f':   return parseFalse(c, v);
             case '\0':  return JsonParseStatus::PARSE_EXPECT_VALUE;  // 字符串结尾
-            default:    return JsonParseStatus::PARSE_INVALID_VALUE;
+            default:    return parseNumber(c, v);
         }
     }
 
@@ -115,5 +127,10 @@ namespace fairy {
     JsonFieldType FieldValue::getType() const
     {
         return this->type;
+    }
+
+    double FieldValue::getNumber() const
+    {
+        return this->n;
     }
 }
