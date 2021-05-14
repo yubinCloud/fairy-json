@@ -131,6 +131,7 @@ namespace fairy {
 
     double FieldValue::getNumber() const
     {
+        assert(this->type == JsonFieldType::J_NUMBER);
         return this->n;
     }
 }
