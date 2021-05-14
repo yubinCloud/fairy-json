@@ -33,10 +33,10 @@ namespace fairy {
 
     struct FairyValue {
         JsonFieldType type;
+
+        JsonFieldType getType() const;
     };
 
 
-    int fairy_parse(FairyValue* v, const char* json_str);
-
-    JsonFieldType getType(const FiaryValue* v);
+    JsonParseStatus json_parse(FairyValue* v, const char* json_str);
 }
