@@ -31,12 +31,12 @@ namespace fairy {
         PARSE_ROOT_NOT_SINGULAR
     };
 
-    struct FairyValue {
+    struct FieldValue {
         JsonFieldType type;
 
         JsonFieldType getType() const;
     };
 
 
-    JsonParseStatus json_parse(FairyValue* v, const char* json_str);
+    JsonParseStatus json_parse(FieldValue* v, const char* json_str);
 }

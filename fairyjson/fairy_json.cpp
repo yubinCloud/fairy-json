@@ -34,7 +34,7 @@ namespace fairy {
      * @param v
      * @return
      */
-    static JsonParseStatus parseNull(ParseContext* c, FairyValue* v) {
+    static JsonParseStatus parseNull(ParseContext* c, FieldValue* v) {
         EXPECT(c, 'n');
         if (c->json[0] != 'u' || c->json[1] != 'l' || c->json[2] != 'l')
             return JsonParseStatus::PARSE_INVALID_VALUE;
@@ -50,7 +50,7 @@ namespace fairy {
      * @param v
      * @return
      */
-    static JsonParseStatus parseTrue(ParseContext* c, FairyValue* v) {
+    static JsonParseStatus parseTrue(ParseContext* c, FieldValue* v) {
         EXPECT(c, 't');
         if (c->json[0] != 'r' || c->json[1] != 'u' || c->json[2] != 'e') {
             return JsonParseStatus::PARSE_INVALID_VALUE;
@@ -66,7 +66,7 @@ namespace fairy {
      * @param v
      * @return
      */
-    static JsonParseStatus parseFalse(ParseContext* c, FairyValue* v) {
+    static JsonParseStatus parseFalse(ParseContext* c, FieldValue* v) {
         EXPECT(c, 'f');
         if (c->json[0] != 'a' || c->json[1] != 'l' || c->json[2] != 's' || c->json[3] != 'e') {
             return JsonParseStatus::PARSE_INVALID_VALUE;
@@ -82,7 +82,7 @@ namespace fairy {
      * @param v
      * @return
      */
-    static JsonParseStatus parseValue(ParseContext* c, FairyValue* v) {
+    static JsonParseStatus parseValue(ParseContext* c, FieldValue* v) {
         switch (*c->json)
         {
             case 'n':   return parseNull(c, v);
@@ -93,7 +93,7 @@ namespace fairy {
         }
     }
 
-    JsonParseStatus json_parse(FairyValue* v, const char* json) {
+    JsonParseStatus json_parse(FieldValue* v, const char* json) {
         ParseContext c = { json };
         assert(v != nullptr);
         v->type = JsonFieldType::J_NULL;
@@ -101,7 +101,7 @@ namespace fairy {
         return parseValue(&c, v);
     }
 
-    JsonFieldType FairyValue::getType() const
+    JsonFieldType FieldValue::getType() const
     {
         return this->type;
     }
