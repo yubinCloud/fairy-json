@@ -4,6 +4,8 @@
 
 #include "fairy_json.h"
 #include <cassert>
+#include <cmath>
+#include "utils.h"
 
 
 #define EXPECT(c, ch)       do { assert(*c->json == (ch)); c->json++; } while(0)
@@ -77,14 +79,34 @@ namespace fairy {
     }
 
     static JsonParseStatus parseNumber(ParseContext* c, FieldValue* v) {
-        char* end;  // 数字部分的结尾
-        // TODO: validate number
-        v->n = strtod(c->json, &end);
-        if (c->json == end) {
-            return JsonParseStatus::PARSE_INVALID_VALUE;
+        // 校验数字
+        const char* p = c->json;
+        if (*p == '-') p++;
+        if (*p == '0') p++;
+        else {
+            if (!isDigitFrom1To9(*p))
+                return JsonParseStatus::PARSE_INVALID_VALUE;
+            for (p++; isDigit(*p); p++);
         }
-        c->json = end;
+        if (*p == '.') {
+            p++;
+            if (!isDigit(*p))
+                return JsonParseStatus::PARSE_INVALID_VALUE;
+            for (p++; isDigit(*p); p++);
+        }
+        if (*p == 'e' || *p == 'E') {
+            p++;
+            if (*p == '+' || *p == '-') p++;
+            if (!isDigit(*p))
+                return JsonParseStatus::PARSE_INVALID_VALUE;
+            for (p++; isDigit(*p); p++);
+        }
+        errno = 0;
+        v->n = std::strtod(c->json, nullptr);
+        if (errno == ERANGE && (v->n == HUGE_VAL || v->n == -HUGE_VAL))
+            return JsonParseStatus::PARSE_NUMBER_OVERFLOW;
         v->type = JsonFieldType::J_NUMBER;
+        c->json = p;
         return JsonParseStatus::PARSE_OK;
     }
 
