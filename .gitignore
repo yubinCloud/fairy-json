@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# project ignore
+/fairyjson/cmake-build-debug/
+/fairyjson/.idea/
