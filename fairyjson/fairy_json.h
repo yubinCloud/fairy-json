@@ -42,6 +42,11 @@ namespace fairy {
         } data{};
         JsonFieldType type = JsonFieldType::J_NULL;
 
+        /**
+         * 释放掉已申请的空间
+         */
+        void freeSpace();
+
         JsonFieldType getType() const {
             return this->type;
         }
@@ -76,7 +81,7 @@ namespace fairy {
             this->data.str.len = len;
         }
 
-        void setJStr(JString* pJStr) {
+        void setJStr(const JString* pJStr) {
             this->setJStr(pJStr->s, pJStr->len);
         }
 

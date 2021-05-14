@@ -145,4 +145,12 @@ namespace fairy {
         }
         return retStatus;
     }
+
+    void FieldValue::freeSpace()
+    {
+        if (this->getType() == JsonFieldType::J_STRING) {
+            free(getJStr()->s);
+            setJStr(nullptr, 0);
+        }
+    }
 }
