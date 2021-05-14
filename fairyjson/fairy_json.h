@@ -32,6 +32,7 @@ namespace fairy {
         PARSE_INVALID_VALUE,
         PARSE_ROOT_NOT_SINGULAR,
         PARSE_NUMBER_OVERFLOW,
+        PARSE_MISS_QUOTATION_MARK
     };
 
 
@@ -39,8 +40,8 @@ namespace fairy {
         union {
             JString str;    // string
             double n;       // number
-        } data{};
-        JsonFieldType type = JsonFieldType::J_NULL;
+        } data;
+        JsonFieldType type;
 
         /**
          * 释放掉已申请的空间
@@ -71,12 +72,10 @@ namespace fairy {
         }
 
         const JString* getJStr() const {
-            assert(this->type == JsonFieldType::J_STRING);
             return &this->data.str;
         }
 
         void setJStr(char* s, size_t len) {
-            assert(this->type == JsonFieldType::J_STRING);
             this->data.str.s = s;
             this->data.str.len = len;
         }

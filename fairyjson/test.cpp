@@ -22,6 +22,8 @@ static int test_pass = 0;
 
 #define EXPECT_EQ_INT(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%d")
 #define EXPECT_EQ_DOUBLE(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%.17g")
+#define EXPECT_EQ_STRING(expect, actual, aLength) \
+    EXPECT_EQ_BASE(sizeof(expect) - 1 == aLength && memcmp(expect, actual, aLength) == 0, expect, actual, "%s")
 
 static void test_parse_null() {
     FieldValue v = {
@@ -109,12 +111,33 @@ static void test_parse_number() {
     TEST_NUMBER(-1.7976931348623157e+308, "-1.7976931348623157e+308");
 }
 
+#define TEST_STRING(expect, json)\
+    do {\
+        FieldValue v = {         \
+            .type = JsonFieldType::J_NULL\
+        };\
+        EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, json));\
+        EXPECT_EQ_INT(JsonFieldType::J_STRING, v.getType());\
+        EXPECT_EQ_STRING(expect, v.getJStr()->s, v.getJStr()->len);\
+        v.freeSpace();\
+    } while(0)
+
+static void test_parse_string() {
+    TEST_STRING("", "\"\"");
+    TEST_STRING("Hello", "\"Hello\"");
+#if 0
+    TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
+    TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
+#endif
+}
+
 static void test_parse() {
     test_parse_null();
     test_parse_expect_value();
     test_parse_invalid_value();
     test_parse_root_not_singular();
     test_parse_number();
+    test_parse_string();
 }
 
 

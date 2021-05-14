@@ -5,6 +5,7 @@
 #include "fairy_json.h"
 #include <cassert>
 #include <cmath>
+#include <stack>
 #include "utils.h"
 
 
@@ -14,7 +15,8 @@
 namespace fairy {
 
     struct ParseContext {
-        const char* json;
+        const char* json = nullptr;
+        std::stack<char> charStack;
     };
 
     /**
@@ -103,11 +105,36 @@ namespace fairy {
         }
         errno = 0;
         v->data.n = std::strtod(c->json, nullptr);
-        if (errno == ERANGE && (v->getNumber() == HUGE_VAL || v->getNumber() == -HUGE_VAL))
+        if (errno == ERANGE && (v->data.n == HUGE_VAL || v->data.n == -HUGE_VAL))
             return JsonParseStatus::PARSE_NUMBER_OVERFLOW;
         v->type = JsonFieldType::J_NUMBER;
         c->json = p;
         return JsonParseStatus::PARSE_OK;
+    }
+
+    static JsonParseStatus parseString(ParseContext* c, FieldValue* v) {
+        EXPECT(c, '\"');
+        size_t head = c->charStack.size();
+        const char* p = c->json;
+        size_t len = 0;
+        while (true) {
+            auto ch = *p++;
+            switch (ch) {
+                case '\"':
+                    len = c->charStack.size() - head;
+                    v->setJStr(fetchStrFromCharStack(c->charStack, len), len);
+                    c->json = p;
+                    v->type = JsonFieldType::J_STRING;
+                    return JsonParseStatus::PARSE_OK;
+                case '\0':
+                    while (c->charStack.size() != head) {
+                        c->charStack.pop();
+                    }
+                    return JsonParseStatus::PARSE_MISS_QUOTATION_MARK;
+                default:
+                    c->charStack.push(ch);
+            }
+        }
     }
 
     /**
@@ -122,15 +149,15 @@ namespace fairy {
             case 'n':   return parseNull(c, v);
             case 't':   return parseTrue(c, v);
             case 'f':   return parseFalse(c, v);
+            case '\"':  return parseString(c, v);
             case '\0':  return JsonParseStatus::PARSE_EXPECT_VALUE;  // 字符串结尾
             default:    return parseNumber(c, v);
         }
     }
 
     JsonParseStatus json_parse(FieldValue* v, const char* json) {
-        ParseContext c = {
-                .json = json
-        };
+        ParseContext c;
+        c.json = json;
         if (v == nullptr) {
             return JsonParseStatus::PARSE_INVALID_VALUE;
         }
