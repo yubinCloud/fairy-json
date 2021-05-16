@@ -88,7 +88,7 @@ namespace fairy {
             return &this->data.str;
         }
 
-        void setJStr(char* s, size_t len) {
+        void setJStr(char* s, const size_t len) {
             this->data.str.s = s;
             this->data.str.len = len;
         }

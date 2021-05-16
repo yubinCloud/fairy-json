@@ -112,7 +112,7 @@ namespace fairy {
         size_t head = c->charStack.size();
         const char* p = c->json;
         size_t len = 0;
-        unsigned u = 0;
+        unsigned u = 0, u2 = 0;  // 存储码点
         while (true) {
             auto ch = *p++;
             switch (ch) {
@@ -132,10 +132,21 @@ namespace fairy {
                         case 'n':  c->charStack.push('\n'); break;
                         case 'r':  c->charStack.push('\r'); break;
                         case 't':  c->charStack.push('\t'); break;
-                        case 'u':
+                        case 'u':  // 对 Unicode 的处理
                             if (!(p = parseHex4(p, &u)))
                                 strParseError(c, head, JsonParseStatus::PARSE_INVALID_UNICODE_HEX);
-                            // TODO: surrogate handling
+                            // surrogate handling
+                            if (u >= 0xD800 && u <= 0xDBFF) {
+                                if (*p++ != '\\')
+                                    strParseError(c, head, JsonParseStatus::PARSE_INVALID_UNICODE_SURROGATE);
+                                if (*p++ != 'u')
+                                    strParseError(c, head, JsonParseStatus::PARSE_INVALID_UNICODE_SURROGATE);
+                                if (!(p = parseHex4(p, &u2)))
+                                    strParseError(c, head, JsonParseStatus::PARSE_INVALID_UNICODE_HEX);
+                                if (u2 < 0xDC00 || u2 > 0xDFFF)
+                                    strParseError(c, head, JsonParseStatus::PARSE_INVALID_UNICODE_SURROGATE);
+                                u = (((u - 0xD800) << 10) | (u2 - 0xDC00)) + 0x10000;
+                            }
                             encodeUtf8(c, u);
                             break;
                         default:
