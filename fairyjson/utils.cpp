@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 using namespace std;
+using namespace fairy;
 
 char* fetchStrFromCharStack(stack<char>& cStack, size_t len) {
     char* buf = (char*)malloc(len + 1);
@@ -22,4 +23,13 @@ void popN(std::stack<char>& s, size_t n) {
     for (size_t i = 0; i < n; ++i) {
         s.pop();
     }
+}
+
+const char* parseHex4(const char* p, unsigned* u) {
+    // TODO
+    return p;
+}
+
+void encodeUtf8(fairy::ParseContext* c, unsigned u) {
+    // TODO
 }

@@ -35,7 +35,9 @@ namespace fairy {
         PARSE_NUMBER_OVERFLOW,
         PARSE_MISS_QUOTATION_MARK,
         PARSE_INVALID_STRING_ESCAPE,
-        PARSE_INVALID_STRING_CHAR
+        PARSE_INVALID_STRING_CHAR,
+        PARSE_INVALID_UNICODE_HEX,      // \u 后不是 4 位十六进位数字
+        PARSE_INVALID_UNICODE_SURROGATE // 只有高代理项而欠缺低代理项，或是低代理项不在合法码点范围
     };
 
 

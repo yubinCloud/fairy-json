@@ -46,3 +46,18 @@ inline fairy::JsonParseStatus strParseError(fairy::ParseContext* c, size_t head,
     popN(c->charStack, c->charStack.size() - head);
     return retStatus;
 }
+
+/**
+ * 解析 4 位十六进数字，存储为码点 u
+ * @param p 所指向的十六进制字符串
+ * @param u 所要存储码点的位置
+ * @return 若解析成功则返回解析后的文本指针，失败则返回 nullptr
+ */
+const char* parseHex4(const char* p, unsigned* u);
+
+/**
+ * 把码点编码成 UTF-8，写进缓冲区
+ * @param c 解析上下文
+ * @param u 所要转换的码点
+ */
+void encodeUtf8(fairy::ParseContext* c, unsigned u);

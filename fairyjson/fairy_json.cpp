@@ -112,6 +112,7 @@ namespace fairy {
         size_t head = c->charStack.size();
         const char* p = c->json;
         size_t len = 0;
+        unsigned u = 0;
         while (true) {
             auto ch = *p++;
             switch (ch) {
@@ -131,6 +132,12 @@ namespace fairy {
                         case 'n':  c->charStack.push('\n'); break;
                         case 'r':  c->charStack.push('\r'); break;
                         case 't':  c->charStack.push('\t'); break;
+                        case 'u':
+                            if (!(p = parseHex4(p, &u)))
+                                strParseError(c, head, JsonParseStatus::PARSE_INVALID_UNICODE_HEX);
+                            // TODO: surrogate handling
+                            encodeUtf8(c, u);
+                            break;
                         default:
                             return strParseError(c, head, JsonParseStatus::PARSE_INVALID_STRING_ESCAPE);
                     }
