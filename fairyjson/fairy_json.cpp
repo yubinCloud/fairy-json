@@ -14,11 +14,6 @@
 
 namespace fairy {
 
-    struct ParseContext {
-        const char* json = nullptr;
-        std::stack<char> charStack;
-    };
-
     /**
      * 解析空白符
      * ws = *(%x20 / %x09 / %x0A / %x0D)
@@ -137,18 +132,15 @@ namespace fairy {
                         case 'r':  c->charStack.push('\r'); break;
                         case 't':  c->charStack.push('\t'); break;
                         default:
-                            popN(c->charStack, c->charStack.size() - head);
-                            return JsonParseStatus::PARSE_INVALID_STRING_ESCAPE;
+                            return strParseError(c, head, JsonParseStatus::PARSE_INVALID_STRING_ESCAPE);
                     }
                     break;
                 case '\0':
-                    popN(c->charStack, c->charStack.size() - head);
-                    return JsonParseStatus::PARSE_MISS_QUOTATION_MARK;
+                    return strParseError(c, head, JsonParseStatus::PARSE_MISS_QUOTATION_MARK);
                 default:
                     //  %x22 是双引号，%x5C 是反斜线，都已经处理。所以不合法的字符是 %x00 至 %x1F。我们简单地在 default 里处理：
                     if ((unsigned char)ch < 0x20) {
-                        popN(c->charStack, c->charStack.size() - head);
-                        return JsonParseStatus::PARSE_INVALID_STRING_CHAR;
+                        return strParseError(c, head, JsonParseStatus::PARSE_INVALID_STRING_CHAR);
                     }
                     c->charStack.push(ch);
             }

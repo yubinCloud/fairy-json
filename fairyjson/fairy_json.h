@@ -6,6 +6,7 @@
 
 #include <string>
 #include <cassert>
+#include <stack>
 #include "JString.h"
 
 namespace fairy {
@@ -94,6 +95,11 @@ namespace fairy {
             this->setJStr(pJStr->s, pJStr->len);
         }
 
+    };
+
+    struct ParseContext {
+        const char* json = nullptr;
+        std::stack<char> charStack;
     };
 
 
