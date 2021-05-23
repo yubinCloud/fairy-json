@@ -7,6 +7,7 @@
 #include <string>
 #include <cassert>
 #include <stack>
+#include <vector>
 #include "JString.h"
 
 namespace fairy {
@@ -40,11 +41,14 @@ namespace fairy {
         PARSE_INVALID_UNICODE_SURROGATE // 只有高代理项而欠缺低代理项，或是低代理项不在合法码点范围
     };
 
-
+    /**
+     * Json 中一个数据元素的类型
+     */
     struct FieldValue {
         union {
-            JString str;    // string
             double n;       // number
+            JString str;    // string
+            std::vector<FieldValue> array;   // array
         } data;
         JsonFieldType type;
 
@@ -99,6 +103,9 @@ namespace fairy {
 
     };
 
+    /**
+     * 解析上下文
+     */
     struct ParseContext {
         const char* json = nullptr;
         std::stack<char> charStack;
