@@ -7,6 +7,7 @@
 #include <cmath>
 #include <stack>
 #include <vector>
+#include <algorithm>
 #include "utils.h"
 
 
@@ -178,10 +179,40 @@ namespace fairy {
             v->setArray(new vector<FieldValue>());
             return JsonParseStatus::PARSE_OK;
         }
+        size_t arraySize = 0;
+        JsonParseStatus parseRet;
         while (true) {
             FieldValue e;
-
+            parseRet = parseValue(c, &e);
+            if (parseRet != JsonParseStatus::PARSE_OK)
+                break;
+            c->fieldStack.push(e);
+            parseWhitespace(c);
+            if (*c->json == ',') {
+                ++c->json;
+                parseWhitespace(c);
+            } else if (*c->json == ']') {
+                ++c->json;
+                v->setType(JsonFieldType::J_ARRAY);
+                v->data.array = new vector<FieldValue>();
+                for (size_t i = 0; i < arraySize; ++i) {
+                    v->data.array->push_back(c->fieldStack.top());
+                    c->fieldStack.pop();
+                }
+                reverse(v->data.array->begin(), v->data.array->end());
+                return JsonParseStatus::PARSE_OK;
+            } else {
+                parseRet = JsonParseStatus::PARSE_MISS_COMMA_OR_SQUARE_BRACKET;
+                break;
+            }
         }
+        // Pop and free values on the stack
+        for (size_t i = 0; i < arraySize; ++i) {
+            auto tempValue = c->fieldStack.top();
+            c->fieldStack.pop();
+            tempValue.freeSpace();
+        }
+        return parseRet;
     }
 
 
@@ -198,6 +229,7 @@ namespace fairy {
             case 't':   return parseTrue(c, v);
             case 'f':   return parseFalse(c, v);
             case '\"':  return parseString(c, v);
+            case '[':   return parseArray(c, v);
             case '\0':  return JsonParseStatus::PARSE_EXPECT_VALUE;  // 字符串结尾
             default:    return parseNumber(c, v);
         }
@@ -223,10 +255,21 @@ namespace fairy {
 
     void FieldValue::freeSpace()
     {
-        if (this->getType() == JsonFieldType::J_STRING) {
-            free(getJStr()->s);
-            setJStr(nullptr, 0);
+        switch (type)
+        {
+            case JsonFieldType::J_STRING:
+                delete getJStr()->s;
+                setJStr(nullptr, 0);
+                break;
+            case JsonFieldType::J_ARRAY:
+                for (auto& e: *this->data.array) {
+                    e.freeSpace();
+                }
+                delete this->data.array;
+                break;
+            default: break;
         }
+        setType(JsonFieldType::J_NULL);
     }
 
     FieldValue::FieldValue() :
@@ -236,4 +279,6 @@ namespace fairy {
     FieldValue::FieldValue(JsonFieldType t) :
         type(t)
     {}
+
+
 }

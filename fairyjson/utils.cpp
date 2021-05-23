@@ -8,7 +8,7 @@ using namespace std;
 using namespace fairy;
 
 char* fetchStrFromCharStack(stack<char>& cStack, size_t len) {
-    char* buf = (char*)malloc(len + 1);
+    char* buf = new char[len + 1];
     buf[len] = '\0';
     while (len != 0) {
         --len;
