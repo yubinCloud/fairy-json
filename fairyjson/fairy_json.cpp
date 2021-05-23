@@ -6,11 +6,13 @@
 #include <cassert>
 #include <cmath>
 #include <stack>
+#include <vector>
 #include "utils.h"
 
 
 #define EXPECT(c, ch)       do { assert(*c->json == (ch)); c->json++; } while(0)
 
+using namespace std;
 
 namespace fairy {
 
@@ -165,12 +167,30 @@ namespace fairy {
         }
     }
 
-    /**
-     * 解析 json 值
-     * @param c
-     * @param v
-     * @return
-     */
+    static JsonParseStatus parseValue(ParseContext* c, FieldValue* v);
+
+    static JsonParseStatus parseArray(ParseContext* c, FieldValue* v) {
+        EXPECT(c, '[');
+        parseWhitespace(c);
+        if (*c->json == ']') {
+            ++c->json;
+            v->setType(JsonFieldType::J_ARRAY);
+            v->setArray(new vector<FieldValue>());
+            return JsonParseStatus::PARSE_OK;
+        }
+        while (true) {
+            FieldValue e;
+
+        }
+    }
+
+
+        /**
+         * 解析 json 值
+         * @param c
+         * @param v
+         * @return
+         */
     static JsonParseStatus parseValue(ParseContext* c, FieldValue* v) {
         switch (*c->json)
         {
@@ -208,4 +228,12 @@ namespace fairy {
             setJStr(nullptr, 0);
         }
     }
+
+    FieldValue::FieldValue() :
+        type(JsonFieldType::J_NULL)
+    {}
+
+    FieldValue::FieldValue(JsonFieldType t) :
+        type(t)
+    {}
 }

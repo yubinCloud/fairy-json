@@ -26,54 +26,40 @@ static int test_pass = 0;
     EXPECT_EQ_BASE(sizeof(expect) - 1 == aLength && memcmp(expect, actual, aLength) == 0, expect, actual, "%s")
 
 static void test_parse_null() {
-    FieldValue v = {
-            .type = JsonFieldType::J_FALSE
-    };
+    FieldValue v(JsonFieldType::J_FALSE);
     EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, "null"));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 }
 
 static void test_parse_expect_value() {
-    FieldValue v = {
-            .type = JsonFieldType::J_FALSE
-    };
+    FieldValue v(JsonFieldType::J_FALSE);
     EXPECT_EQ_INT(JsonParseStatus::PARSE_EXPECT_VALUE, json_parse(&v, " "));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 
-    FieldValue v2 = {
-            .type = JsonFieldType::J_FALSE
-    };
+    FieldValue v2(JsonFieldType::J_FALSE);
     EXPECT_EQ_INT(JsonParseStatus::PARSE_EXPECT_VALUE, json_parse(&v2, " "));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v2.getType());
 }
 
 static void test_parse_invalid_value() {
-    FieldValue v = {
-            .type = JsonFieldType::J_FALSE
-    };
+    FieldValue v(JsonFieldType::J_FALSE);
     EXPECT_EQ_INT(JsonParseStatus::PARSE_INVALID_VALUE, json_parse(&v, "nul"));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 
-    FieldValue v2 = {
-            .type = JsonFieldType::J_FALSE
-    };
+    FieldValue v2(JsonFieldType::J_FALSE);
     EXPECT_EQ_INT(JsonParseStatus::PARSE_INVALID_VALUE, json_parse(&v2, "?"));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v2.getType());
 }
 
 static void test_parse_root_not_singular() {
-    FieldValue v = {
-            .type = JsonFieldType::J_FALSE
-    };
+    FieldValue v(JsonFieldType::J_FALSE);
     EXPECT_EQ_INT(JsonParseStatus::PARSE_ROOT_NOT_SINGULAR, json_parse(&v, "null x"));
     EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());
 }
 
 #define TEST_NUMBER(expect, json)\
     do {\
-        FieldValue v = {         \
-            .type = JsonFieldType::J_FALSE\
-        };\
+        FieldValue v(JsonFieldType::J_FALSE);\
         EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, json));\
         EXPECT_EQ_INT(JsonFieldType::J_NUMBER, v.getType());\
         EXPECT_EQ_DOUBLE(expect, v.getNumber());\
@@ -113,9 +99,7 @@ static void test_parse_number() {
 
 #define TEST_STRING(expect, json)\
     do {\
-        FieldValue v = {         \
-            .type = JsonFieldType::J_NULL\
-        };\
+        FieldValue v(JsonFieldType::J_FALSE);\
         EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, json));\
         EXPECT_EQ_INT(JsonFieldType::J_STRING, v.getType());\
         EXPECT_EQ_STRING(expect, v.getJStr()->s, v.getJStr()->len);\
@@ -137,9 +121,7 @@ static void test_parse_string() {
 
 #define TEST_ERROR(error, json)\
     do {\
-        FieldValue v = {         \
-            .type = JsonFieldType::J_NULL\
-        };\
+        FieldValue v;\
         EXPECT_EQ_INT(error, json_parse(&v, json));\
         EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getType());\
         v.freeSpace();\

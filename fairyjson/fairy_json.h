@@ -8,6 +8,7 @@
 #include <cassert>
 #include <stack>
 #include <vector>
+#include <memory>
 #include "JString.h"
 
 namespace fairy {
@@ -48,9 +49,13 @@ namespace fairy {
         union {
             double n;       // number
             JString str;    // string
-            std::vector<FieldValue> array;   // array
-        } data;
+            std::vector<FieldValue>* array;   // array
+        } data{};
         JsonFieldType type;
+
+    public:
+        explicit FieldValue();
+        explicit FieldValue(JsonFieldType t);
 
         /**
          * 释放掉已申请的空间
@@ -82,8 +87,6 @@ namespace fairy {
            return false;
         }
 
-
-
         JString* getJStr() {
             return &this->data.str;
         }
@@ -101,6 +104,13 @@ namespace fairy {
             this->setJStr(pJStr->s, pJStr->len);
         }
 
+        std::vector<FieldValue>* getArray() const {
+            return this->data.array;
+        }
+
+        void setArray(std::vector<FieldValue>* array) {
+            this->data.array = array;
+        }
     };
 
     /**
@@ -109,6 +119,7 @@ namespace fairy {
     struct ParseContext {
         const char* json = nullptr;
         std::stack<char> charStack;
+        std::stack<FieldValue> fieldStack;
     };
 
 
