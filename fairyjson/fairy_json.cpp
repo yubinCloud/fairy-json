@@ -187,6 +187,7 @@ namespace fairy {
             if (parseRet != JsonParseStatus::PARSE_OK)
                 break;
             c->fieldStack.push(e);
+            ++arraySize;
             parseWhitespace(c);
             if (*c->json == ',') {
                 ++c->json;

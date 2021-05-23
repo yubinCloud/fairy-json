@@ -24,6 +24,12 @@ static int test_pass = 0;
 #define EXPECT_EQ_DOUBLE(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%.17g")
 #define EXPECT_EQ_STRING(expect, actual, aLength) \
     EXPECT_EQ_BASE(sizeof(expect) - 1 == aLength && memcmp(expect, actual, aLength) == 0, expect, actual, "%s")
+#if defined(_MSC_VER)
+#define EXPECT_EQ_SIZE_T(expect, actual) EXPECT_EQ_BASE((expect) == (actual), (size_t)expect, (size_t)actual, "%Iu")
+#else
+#define EXPECT_EQ_SIZE_T(expect, actual) EXPECT_EQ_BASE((expect) == (actual), (size_t)expect, (size_t)actual, "%zu")
+#endif
+
 
 static void test_parse_null() {
     FieldValue v(JsonFieldType::J_FALSE);
@@ -142,6 +148,28 @@ static void test_parse_invalid_string_char() {
     TEST_ERROR(JsonParseStatus::PARSE_INVALID_STRING_CHAR, "\"\x1F\"");
 }
 
+static void test_parse_array() {
+    size_t i, j;
+    FieldValue v;
+
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, "[ ]"));
+    EXPECT_EQ_INT(JsonFieldType::J_ARRAY, v.getType());
+    EXPECT_EQ_SIZE_T(0, v.getArray()->size());
+    v.freeSpace();
+
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, "[ null , false , true , 123 , \"abc\" ]"));
+    EXPECT_EQ_INT(JsonFieldType::J_ARRAY, v.getType());
+    EXPECT_EQ_SIZE_T(5, v.getArray()->size());
+    EXPECT_EQ_INT(JsonFieldType::J_NULL,   (*v.getArray())[0].getType());
+    EXPECT_EQ_INT(JsonFieldType::J_FALSE,  (*v.getArray())[1].getType());
+    EXPECT_EQ_INT(JsonFieldType::J_TRUE,   (*v.getArray())[2].getType());
+    EXPECT_EQ_INT(JsonFieldType::J_NUMBER, (*v.getArray())[3].getType());
+    EXPECT_EQ_INT(JsonFieldType::J_STRING, (*v.getArray())[4].getType());
+    EXPECT_EQ_DOUBLE(123.0, (*v.getArray())[3].getNumber());
+    EXPECT_EQ_STRING("abc", (*v.getArray())[4].getJStr()->s, (*v.getArray())[4].getJStr()->len);
+    v.freeSpace();
+}
+
 static void test_parse() {
     test_parse_null();
     test_parse_expect_value();
@@ -151,6 +179,7 @@ static void test_parse() {
     test_parse_string();
     test_parse_invalid_string_escape();
     test_parse_invalid_string_char();
+    test_parse_array();
 }
 
 
