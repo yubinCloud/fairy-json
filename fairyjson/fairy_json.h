@@ -42,7 +42,10 @@ namespace fairy {
         PARSE_INVALID_STRING_CHAR,
         PARSE_INVALID_UNICODE_HEX,      // \u 后不是 4 位十六进位数字
         PARSE_INVALID_UNICODE_SURROGATE, // 只有高代理项而欠缺低代理项，或是低代理项不在合法码点范围
-        PARSE_MISS_COMMA_OR_SQUARE_BRACKET
+        PARSE_MISS_COMMA_OR_SQUARE_BRACKET,
+        PARSE_MISS_KEY,
+        PARSE_MISS_COLON,
+        PARSE_MISS_COMMA_OR_CURLY_BRACKET
     };
 
     /**
