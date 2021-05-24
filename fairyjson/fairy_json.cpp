@@ -110,20 +110,20 @@ namespace fairy {
         return JsonParseStatus::PARSE_OK;
     }
 
-    static JsonParseStatus parseString(ParseContext* c, FieldValue* v) {
+    static JsonParseStatus parseStringRaw(ParseContext* c, char** pStr, size_t* pLen) {
         EXPECT(c, '\"');
         size_t head = c->charStack.size();
         const char* p = c->json;
-        size_t len = 0;
+        size_t len;
         unsigned u = 0, u2 = 0;  // 存储码点
         while (true) {
             auto ch = *p++;
             switch (ch) {
                 case '\"':
                     len = c->charStack.size() - head;
-                    v->setJStr(fetchStrFromCharStack(c->charStack, len), len);
+                    *pStr = fetchStrFromCharStack(c->charStack, len);
+                    *pLen = len;
                     c->json = p;
-                    v->type = JsonFieldType::J_STRING;
                     return JsonParseStatus::PARSE_OK;
                 case '\\':
                     switch (*p++) {
@@ -166,6 +166,17 @@ namespace fairy {
                     c->charStack.push(ch);
             }
         }
+    }
+
+    static JsonParseStatus parseString(ParseContext* c, FieldValue* v) {
+        char* s = nullptr;
+        size_t len = 0;
+        const auto parseRet = parseStringRaw(c, &s, &len);
+        if (parseRet == JsonParseStatus::PARSE_OK) {
+            v->setJStr(s, len);
+            v->type = JsonFieldType::J_STRING;
+        }
+        return parseRet;
     }
 
     static JsonParseStatus parseValue(ParseContext* c, FieldValue* v);
