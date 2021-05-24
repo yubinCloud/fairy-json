@@ -9,6 +9,8 @@
 #include <stack>
 #include <vector>
 #include <memory>
+#include <map>
+#include <string>
 #include "JString.h"
 
 namespace fairy {
@@ -51,6 +53,7 @@ namespace fairy {
             double n;       // number
             JString str;    // string
             std::vector<FieldValue>* array;   // array
+            std::multimap<std::string, FieldValue>* obj;  // object
         } data{};
         JsonFieldType type;
 
@@ -111,6 +114,14 @@ namespace fairy {
 
         void setArray(std::vector<FieldValue>* array) {
             this->data.array = array;
+        }
+
+        std::multimap<std::string, FieldValue>* getObj() const {
+            return this->data.obj;
+        }
+
+        void setObj(std::multimap<std::string, FieldValue>* obj) {
+            this->data.obj = obj;
         }
     };
 
