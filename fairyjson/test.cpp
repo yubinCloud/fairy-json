@@ -1,7 +1,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
+#include <iostream>
 #include "fairy_json.h"
+
 
 using namespace fairy;
 
@@ -200,6 +203,23 @@ static void test_parse_object() {
     v.freeSpace();
 }
 
+static void test_stringify() {
+    auto oldJsonStr = std::string(" { "
+                                  "\"n\" : null , "
+                                  "\"f\" : false , "
+                                  "\"t\" : true , "
+                                  "\"i\" : 123 , "
+                                  "\"s\" : \"abc\", "
+                                  "\"a\" : [ 1, 2, 3 ],"
+                                  "\"o\" : { \"1\" : 1, \"2\" : 2, \"3\" : 3 }"
+                                  " } ");
+    FieldValue v;
+    auto retStatus = json_parse(&v, oldJsonStr.c_str());
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, retStatus);
+    auto afterJsonStr = jsonStringify(&v);
+    std::cout << afterJsonStr << std::endl;
+}
+
 static void test_parse() {
     test_parse_null();
     test_parse_expect_value();
@@ -211,6 +231,7 @@ static void test_parse() {
     test_parse_invalid_string_char();
     test_parse_array();
     test_parse_object();
+    test_stringify();
 }
 
 

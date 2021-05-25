@@ -406,6 +406,7 @@ namespace fairy {
             jStrm << '"' << ite->first << "\": ";
             jsonStringifyValue(&ite->second, jStrm);
             jStrm << ", ";
+            ++ite;
         }
         jStrm << '"' << ite->first << "\": ";
         jsonStringifyValue(&ite->second, jStrm);
