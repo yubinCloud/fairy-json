@@ -139,4 +139,11 @@ namespace fairy {
 
 
     JsonParseStatus json_parse(FieldValue* v, const char* json_str);
+
+    /**
+    * 将 json 进行字符串化
+    * @param v
+    * @return
+    */
+    std::string jsonStringify(const FieldValue* v);
 }

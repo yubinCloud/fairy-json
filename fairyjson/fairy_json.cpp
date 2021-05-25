@@ -8,6 +8,7 @@
 #include <stack>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 #include "utils.h"
 
 
@@ -325,6 +326,92 @@ namespace fairy {
         }
         return retStatus;
     }
+
+    static void jsonStringifyArray(const FieldValue* v, ostringstream& jStrm);
+    static void jsonStringifyObject(const FieldValue* v, ostringstream& jStrm);
+
+    /**
+     * 将一个 FieldValue 对象进行字符串化
+     * @param v
+     * @param jStrm
+     */
+    static void jsonStringifyValue(const FieldValue* v, ostringstream& jStrm) {
+        switch (v->getType()) {
+            case JsonFieldType::J_NULL:
+                jStrm << "null";
+                break;
+            case JsonFieldType::J_FALSE:
+                jStrm << "false";
+                break;
+            case JsonFieldType::J_TRUE:
+                jStrm << "true";
+                break;
+            case JsonFieldType::J_NUMBER:
+                jStrm << v->data.n;
+                break;
+            case JsonFieldType::J_STRING:
+                jStrm << '"' << string(v->getJStr()->s, v->getJStr()->len) << '"';
+                break;
+            case JsonFieldType::J_ARRAY:
+                jsonStringifyArray(v, jStrm);
+                break;
+            case JsonFieldType::J_OBJECT:
+                jsonStringifyObject(v, jStrm);
+                break;
+            default:
+                assert(0 && "invalid type");
+        }
+    }
+
+    /**
+     * 将 json 进行字符串化
+     * @param v
+     * @return
+     */
+    string jsonStringify(const FieldValue* v) {
+        assert(v != nullptr);
+        ostringstream jsonStream;
+        jsonStringifyValue(v, jsonStream);
+        return jsonStream.str();
+    }
+
+    /**
+     * 将一个数组进行字符串化
+     * @param v
+     * @param jStrm
+     */
+    static void jsonStringifyArray(const FieldValue* v, ostringstream& jStrm) {
+        jStrm << '[';
+        const auto arraySize = v->data.array->size();
+        auto ite = v->data.array->begin();
+        for (int i = 0; i < arraySize - 1; ++i) {
+            jsonStringifyValue(&*ite, jStrm);
+            jStrm << ", ";
+            ++ite;
+        }
+        jsonStringifyValue(&*ite, jStrm);
+        jStrm << ']';
+    }
+
+    /**
+     * 将一个对象进行字符串化
+     * @param v
+     * @param jStrm
+     */
+    static void jsonStringifyObject(const FieldValue* v, ostringstream& jStrm) {
+        jStrm << '{';
+        const auto mapSize = v->data.obj->size();
+        auto ite = v->data.obj->begin();
+        for (int i = 0; i < mapSize - 1; ++i) {
+            jStrm << '"' << ite->first << "\": ";
+            jsonStringifyValue(&ite->second, jStrm);
+            jStrm << ", ";
+        }
+        jStrm << '"' << ite->first << "\": ";
+        jsonStringifyValue(&ite->second, jStrm);
+        jStrm << "}";
+    }
+
 
     void FieldValue::freeSpace()
     {
