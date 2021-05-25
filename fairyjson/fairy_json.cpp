@@ -232,7 +232,7 @@ namespace fairy {
         JsonParseStatus retStatus;
         parseWhitespace(c);
         v->data.obj = new multimap<string, FieldValue>();
-        if (*c->json == '{') {
+        if (*c->json == '}') {
             ++c->json;
             v->setType(JsonFieldType::J_OBJECT);
             return JsonParseStatus::PARSE_OK;
@@ -302,6 +302,7 @@ namespace fairy {
             case 'f':   return parseFalse(c, v);
             case '\"':  return parseString(c, v);
             case '[':   return parseArray(c, v);
+            case '{':   return parseObject(c, v);
             case '\0':  return JsonParseStatus::PARSE_EXPECT_VALUE;  // 字符串结尾
             default:    return parseNumber(c, v);
         }

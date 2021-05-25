@@ -170,6 +170,36 @@ static void test_parse_array() {
     v.freeSpace();
 }
 
+static void test_parse_object() {
+    FieldValue v;
+    size_t i;
+
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v, " { } "));
+    EXPECT_EQ_INT(JsonFieldType::J_OBJECT, v.getType());
+    EXPECT_EQ_SIZE_T(0, v.getObj()->size());
+    v.freeSpace();
+
+    EXPECT_EQ_INT(JsonParseStatus::PARSE_OK, json_parse(&v,
+                                            " { "
+                                            "\"n\" : null , "
+                                            "\"f\" : false , "
+                                            "\"t\" : true , "
+                                            "\"i\" : 123 , "
+                                            "\"s\" : \"abc\", "
+                                            "\"a\" : [ 1, 2, 3 ],"
+                                            "\"o\" : { \"1\" : 1, \"2\" : 2, \"3\" : 3 }"
+                                            " } "
+    ));
+    EXPECT_EQ_INT(JsonFieldType::J_OBJECT, v.getType());
+    EXPECT_EQ_SIZE_T(7, v.getObj()->size());
+    EXPECT_EQ_INT(JsonFieldType::J_NULL, v.getObj()->find("n")->second.getType());
+    EXPECT_EQ_INT(JsonFieldType::J_FALSE, v.getObj()->find("f")->second.getType());
+    EXPECT_EQ_INT(JsonFieldType::J_TRUE, v.getObj()->find("t")->second.getType());
+    EXPECT_EQ_INT(JsonFieldType::J_NUMBER, v.getObj()->find("i")->second.getType());
+    EXPECT_EQ_DOUBLE(123.0, v.getObj()->find("i")->second.getNumber());
+    v.freeSpace();
+}
+
 static void test_parse() {
     test_parse_null();
     test_parse_expect_value();
@@ -180,6 +210,7 @@ static void test_parse() {
     test_parse_invalid_string_escape();
     test_parse_invalid_string_char();
     test_parse_array();
+    test_parse_object();
 }
 
 
