@@ -174,7 +174,7 @@ namespace fairy {
         const auto parseRet = parseStringRaw(c, &s, &len);
         if (parseRet == JsonParseStatus::PARSE_OK) {
             v->setJStr(s, len);
-            v->type = JsonFieldType::J_STRING;
+            v->setType(JsonFieldType::J_STRING);
         }
         return parseRet;
     }
@@ -225,6 +225,66 @@ namespace fairy {
             tempValue.freeSpace();
         }
         return parseRet;
+    }
+
+    static JsonParseStatus parseObject(ParseContext* c, FieldValue* v) {
+        EXPECT(c, '{');
+        JsonParseStatus retStatus;
+        parseWhitespace(c);
+        v->data.obj = new multimap<string, FieldValue>();
+        if (*c->json == '{') {
+            ++c->json;
+            v->setType(JsonFieldType::J_OBJECT);
+            return JsonParseStatus::PARSE_OK;
+        }
+        while (true) {
+            char* keyStr = nullptr;
+            size_t keyStrLen = 0;
+            FieldValue objValue;  // 对象的一个属性
+            // parse key
+            if (*c->json != '"') {
+                retStatus = JsonParseStatus::PARSE_MISS_KEY;
+                break;
+            }
+            retStatus = parseStringRaw(c, &keyStr, &keyStrLen);
+            if (retStatus != JsonParseStatus::PARSE_OK)
+                break;
+            const string objKey = string(keyStr, keyStrLen);
+            // parse ws colon ws
+            parseWhitespace(c);
+            if (*c->json != ':') {
+                retStatus = JsonParseStatus::PARSE_MISS_COLON;
+                break;
+            }
+            c->json++;
+            parseWhitespace(c);
+            // parse value
+            retStatus = parseValue(c, &objValue);
+            if (retStatus != JsonParseStatus::PARSE_OK) {
+                break;
+            }
+            // 完成一个键值对的解析
+            v->data.obj->insert({objKey, objValue});
+            // parse ws [comma | right-curly-brace] ws
+            parseWhitespace(c);
+            if (*c->json == ',') {
+                c->json++;
+                parseWhitespace(c);
+            }
+            else if (*c->json == '}') {
+                c->json++;
+                v->setType(JsonFieldType::J_OBJECT);
+                return JsonParseStatus::PARSE_OK;
+            }
+            else {
+                retStatus = JsonParseStatus::PARSE_MISS_COMMA_OR_CURLY_BRACKET;
+                break;
+            }
+        }
+        // 清理已申请的空间
+        v->freeSpace();
+        v->setType(JsonFieldType::J_NULL);
+        return retStatus;
     }
 
 
@@ -278,6 +338,12 @@ namespace fairy {
                     e.freeSpace();
                 }
                 delete this->data.array;
+                break;
+            case JsonFieldType::J_OBJECT:
+                for (auto& item: *this->data.obj) {
+                    item.second.freeSpace();
+                }
+                delete this->data.obj;
                 break;
             default: break;
         }
